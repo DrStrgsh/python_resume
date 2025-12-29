@@ -1,18 +1,36 @@
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.api.deps import get_db
+from app.models.users import User
+from app.models.enums import UserRole
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
-def require_admin(token: str = Depends(oauth2_scheme)) -> str:
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
     try:
         payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-        username = payload.get("sub")
-        if not username or username != settings.ADMIN_USERNAME:
+        sub = payload.get("sub")
+        if not sub:
             raise HTTPException(status_code=401, detail="Invalid token")
-        return username
-    except JWTError:
+        user_id = int(sub)
+    except (JWTError, ValueError):
         raise HTTPException(status_code=401, detail="Invalid token")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user
+
+def require_user(user: User = Depends(get_current_user)) -> User:
+    return user
+
+def require_admin(user: User = Depends(get_current_user)) -> User:
+    if user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
