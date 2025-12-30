@@ -13,9 +13,9 @@ exists = db.query(User).filter(User.username == username).first()
 try:
     if not exists:
         admin = User(
-            username=username,
-            password_hash=hash_password(password),
-            role=UserRole.admin
+            username = username,
+            password_hash = hash_password(password),
+            role = UserRole.admin
         )
         db.add(admin)
         db.commit()

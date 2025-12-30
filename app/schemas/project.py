@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-
+from pydantic import BaseModel, ConfigDict
+from datetime import datetime
 
 class ProjectBase(BaseModel):
     title: str
@@ -18,7 +18,7 @@ class ProjectCreate(ProjectBase):
 # response
 class ProjectOut(ProjectBase):
     id: int
+    created_at: datetime
+    updated_at: datetime
 
-    class Config:
-        # дає читати SQLAlchemy об'єкти і конвертити в JSON
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)

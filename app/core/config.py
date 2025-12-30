@@ -1,8 +1,8 @@
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file = os.getenv("ENV_FILE", ".env"), extra = "ignore")
     # extra="ignore" - якщо в .env є змінні, яких нема в класі Settings, то нічого НЕ падає
 
     DATABASE_URL: str | None = None

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
@@ -7,10 +7,19 @@ from app.models.users import User
 from app.models.projects import Project
 from app.schemas.project import ProjectCreate, ProjectOut
 
+router = APIRouter(prefix = "/admin/projects", tags = ["admin"])
 
-router = APIRouter(prefix="/admin/projects", tags=["admin"])
+SLUG_EXISTS = HTTPException(
+    status_code = status.HTTP_400_BAD_REQUEST,
+    detail = "Slug already exists"
+)
 
-@router.post("", response_model=ProjectOut)
+PROJECT_NOT_FOUND = HTTPException(
+    status_code = status.HTTP_404_NOT_FOUND,
+    detail = "Project not found"
+)
+
+@router.post("", response_model = ProjectOut)
 def create_project(
         payload: ProjectCreate,
         db: Session = Depends(get_db),
@@ -18,7 +27,7 @@ def create_project(
 ):
     existing = db.query(Project).filter(Project.slug == payload.slug).first()
     if existing:
-        raise HTTPException(status_code=400, detail="Slug already exists")
+        raise SLUG_EXISTS
 
     project = Project(**payload.model_dump())
     db.add(project)
@@ -26,7 +35,7 @@ def create_project(
     db.refresh(project)
     return project
 
-@router.put("/{project_id}", response_model=ProjectOut)
+@router.put("/{project_id}", response_model = ProjectOut)
 def update_project(
         project_id: int,
         payload: ProjectCreate,
@@ -35,11 +44,11 @@ def update_project(
 ):
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise PROJECT_NOT_FOUND
 
     other = db.query(Project).filter(Project.slug == payload.slug, Project.id != project_id).first()
     if other:
-        raise HTTPException(status_code=400, detail="Slug already exists")
+        raise SLUG_EXISTS
 
     for k, v in payload.model_dump().items():
         setattr(project, k, v)
@@ -56,7 +65,7 @@ def delete_project(
 ):
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise PROJECT_NOT_FOUND
 
     db.delete(project)
     db.commit()

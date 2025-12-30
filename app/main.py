@@ -4,7 +4,7 @@ from app.api.routes.projects import router as projects_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.admin_projects import router as admin_projects_router
 
-app = FastAPI(title="Resume API")
+app = FastAPI(title = "Resume API")
 
 @app.get("/health")
 def health():
