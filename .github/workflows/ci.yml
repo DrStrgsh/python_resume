@@ -85,6 +85,7 @@ jobs:
         with:
           files: coverage.xml
           fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload coverage.xml artifact
         if: always()
