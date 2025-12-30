@@ -1,20 +1,25 @@
 import importlib
 import pkgutil
-from typing import Iterator, Type
+from collections.abc import Iterator
 
 from tests.factories.base import BaseFactory
+
 
 def import_all_factory_modules() -> None:
     import tests.factories
 
     package = tests.factories
-    for _, module_name, _ in pkgutil.walk_packages(package.__path__, package.__name__ + "."):
+    for _, module_name, _ in pkgutil.walk_packages(
+        package.__path__, package.__name__ + "."
+    ):
         importlib.import_module(module_name)
 
-def iter_all_subclasses(cls: Type) -> Iterator[Type]:
+
+def iter_all_subclasses(cls: type) -> Iterator[type]:
     for sub in cls.__subclasses__():
         yield sub
         yield from iter_all_subclasses(sub)
+
 
 def bind_sqlalchemy_session_to_all_factories(session) -> None:
     import_all_factory_modules()

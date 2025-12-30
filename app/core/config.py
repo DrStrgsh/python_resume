@@ -1,8 +1,13 @@
 import os
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file = os.getenv("ENV_FILE", ".env"), extra = "ignore")
+    model_config = SettingsConfigDict(
+        env_file=os.getenv("ENV_FILE", ".env"), extra="ignore"
+    )
     # extra="ignore" - якщо в .env є змінні, яких нема в класі Settings, то нічого НЕ падає
 
     DATABASE_URL: str | None = None
@@ -17,11 +22,7 @@ class Settings(BaseSettings):
         if self.DATABASE_URL:
             return self.DATABASE_URL
 
-        if not all([
-            self.POSTGRES_USERNAME,
-            self.POSTGRES_PASSWORD,
-            self.POSTGRES_DB
-        ]):
+        if not all([self.POSTGRES_USERNAME, self.POSTGRES_PASSWORD, self.POSTGRES_DB]):
             raise RuntimeError("Invalid database configuration")
 
         return (
@@ -32,7 +33,6 @@ class Settings(BaseSettings):
             f"{self.POSTGRES_DB}"
         )
 
-
     JWT_SECRET_KEY: str = "secret"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
@@ -40,4 +40,7 @@ class Settings(BaseSettings):
     ADMIN_USERNAME: str = "admin"
     ADMIN_PASSWORD: str = "password"
 
-settings = Settings()
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
