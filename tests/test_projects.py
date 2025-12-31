@@ -1,10 +1,10 @@
 from tests.factories import ProjectFactory, UserFactory
-from tests.jwt_helpers import token_for
+from tests.jwt_helpers import authenticate_client
 
 
 def test_users_can_get_projects(client, db_session):
     for _ in range(2):
-        ProjectFactory()
+        ProjectFactory.create()
 
     r = client.get("/projects")
     assert r.status_code == 200, r.text
@@ -12,8 +12,8 @@ def test_users_can_get_projects(client, db_session):
 
 
 def test_user_cannot_create_project(client, db_session):
-    user = UserFactory()
-    token = token_for(user)
+    user = UserFactory.create()
+    authenticate_client(client, user)
     payload = {
         "title": "Project",
         "slug": "project",
@@ -24,14 +24,14 @@ def test_user_cannot_create_project(client, db_session):
     }
 
     r = client.post(
-        "/admin/projects", json=payload, headers={"Authorization": f"Bearer {token}"}
+        "/admin/projects", json=payload
     )
     assert r.status_code == 403, r.text
 
 
 def test_user_can_get_single_project(client, db_session):
-    project1 = ProjectFactory(title="Project 1")
-    ProjectFactory(title="Project 2")
+    project1 = ProjectFactory.create(title="Project 1")
+    ProjectFactory.create(title="Project 2")
 
     r = client.get(f"/projects/{project1.slug}")
     assert r.status_code == 200, r.text

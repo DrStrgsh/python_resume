@@ -1,15 +1,17 @@
 from datetime import datetime, timedelta, timezone
-
 from jose import jwt
+from typing import Any
 
 from app.core.config import get_settings
 from app.models.users import User
 
 
+settings = get_settings()
+
+
 def make_token(
     *, sub: int, role: str, secret: str | None = None, exp_delta_seconds: int = 3600
 ) -> str:
-    settings = get_settings()
     now = datetime.now(timezone.utc)
     exp = now + timedelta(seconds=exp_delta_seconds)
     payload = {
@@ -25,6 +27,11 @@ def make_token(
 
 
 def token_for(user: User):
-    token = make_token(sub=user.id, role=user.role)
+    return make_token(sub=user.id, role=user.role)
 
-    return token
+
+def authenticate_client(client: Any, user: User, token: str | None = None) -> None:
+    if not token:
+        token = token_for(user)
+
+    client.cookies.set(settings.ACCESS_TOKEN_COOKIE_NAME, token)

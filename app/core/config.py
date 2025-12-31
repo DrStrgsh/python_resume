@@ -1,5 +1,6 @@
 import os
 from functools import lru_cache
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -40,6 +41,13 @@ class Settings(BaseSettings):
     ADMIN_USERNAME: str = "admin"
     ADMIN_PASSWORD: str = "password"
 
+    ACCESS_TOKEN_COOKIE_NAME: str = "access_token"
+    ACCESS_TOKEN_COOKIE_HTTPONLY: bool = True
+    ACCESS_TOKEN_COOKIE_SECURE: bool = False
+    ACCESS_TOKEN_COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
+    ACCESS_TOKEN_COOKIE_PATH: str = "/"
+
+    FRONTEND_ORIGINS: list[str] = ["http://localhost:3000"]
 
 @lru_cache
 def get_settings() -> Settings:

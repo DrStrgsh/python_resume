@@ -1,5 +1,4 @@
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status, Cookie
 from jose import ExpiredSignatureError, JWTError, jwt
 from sqlalchemy.orm import Session
 
@@ -8,21 +7,28 @@ from app.core.config import get_settings
 from app.models.enums import UserRole
 from app.models.users import User
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 INVALID_TOKEN = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Invalid token",
-    headers={"WWW-Authenticate": "Bearer"},
+    detail="Invalid token"
 )
 ADMIN_ACCESS_REQUIRED = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
 )
+settings = get_settings()
+
+
+def get_access_token(
+        access_token_cookie: str | None = Cookie(default = None, alias = settings.ACCESS_TOKEN_COOKIE_NAME),
+) -> str:
+    if access_token_cookie:
+        return access_token_cookie
+
+    raise INVALID_TOKEN
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    token: str = Depends(get_access_token), db: Session = Depends(get_db)
 ) -> User:
-    settings = get_settings()
     try:
         payload = jwt.decode(
             token,
