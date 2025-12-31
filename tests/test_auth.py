@@ -8,7 +8,8 @@ def test_login(client, db_session):
     r = client.post("/auth/login", data={"username": "user", "password": "password"})
     assert r.status_code == 200, r.text
     data = r.json()
-    assert "ok" in data
+    assert data["username"] == "user"
+    assert data["role"] == "user"
 
 
 def test_me(client, db_session):
@@ -17,9 +18,9 @@ def test_me(client, db_session):
 
     r = client.get("/auth/me")
     assert r.status_code == 200, r.text
-    me = r.json()
-    assert me["username"] == "user"
-    assert me["role"] == "user"
+    data = r.json()
+    assert data["username"] == "user"
+    assert data["role"] == "user"
 
 
 def test_login_wrong_password_or_username(client, db_session):

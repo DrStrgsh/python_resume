@@ -44,7 +44,7 @@ def login(
         path=settings.ACCESS_TOKEN_COOKIE_PATH,
     )
 
-    return {"ok": True}
+    return {"id": user.id, "username": user.username, "role": user.role.value}
 
 
 @router.post("/logout")
