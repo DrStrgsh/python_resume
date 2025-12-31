@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
 from app.api.deps_auth import require_user
+from app.core.config import get_settings
 from app.core.security import create_access_token, verify_password
 from app.models.users import User
-from app.core.config import get_settings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -23,7 +23,7 @@ def me(user: User = Depends(require_user)):
 def login(
     response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     user = db.query(User).filter(User.username == form_data.username).first()
 
@@ -36,22 +36,21 @@ def login(
     token = create_access_token(user_id=user.id, role=user.role)
 
     response.set_cookie(
-        key = settings.ACCESS_TOKEN_COOKIE_NAME,
-        value = token,
-        httponly = settings.ACCESS_TOKEN_COOKIE_HTTPONLY,
-        secure = settings.ACCESS_TOKEN_COOKIE_SECURE,
-        samesite = settings.ACCESS_TOKEN_COOKIE_SAMESITE,
-        path = settings.ACCESS_TOKEN_COOKIE_PATH
+        key=settings.ACCESS_TOKEN_COOKIE_NAME,
+        value=token,
+        httponly=settings.ACCESS_TOKEN_COOKIE_HTTPONLY,
+        secure=settings.ACCESS_TOKEN_COOKIE_SECURE,
+        samesite=settings.ACCESS_TOKEN_COOKIE_SAMESITE,
+        path=settings.ACCESS_TOKEN_COOKIE_PATH,
     )
 
-    return { "ok": True }
+    return {"ok": True}
 
 
 @router.post("/logout")
 def logout(response: Response):
     response.delete_cookie(
-        key = settings.ACCESS_TOKEN_COOKIE_NAME,
-        path = settings.ACCESS_TOKEN_COOKIE_PATH
+        key=settings.ACCESS_TOKEN_COOKIE_NAME, path=settings.ACCESS_TOKEN_COOKIE_PATH
     )
 
-    return { "ok": True }
+    return {"ok": True}

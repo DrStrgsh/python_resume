@@ -1,6 +1,6 @@
 from app.models.enums import UserRole
 from tests.factories import UserFactory
-from tests.jwt_helpers import make_token, authenticate_client
+from tests.jwt_helpers import authenticate_client, make_token
 
 
 def test_expired_token_returns_401(client, db_session):

@@ -49,6 +49,7 @@ class Settings(BaseSettings):
 
     FRONTEND_ORIGINS: list[str] = ["http://localhost:3000"]
 
+
 @lru_cache
 def get_settings() -> Settings:
     return Settings()

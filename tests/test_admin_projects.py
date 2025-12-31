@@ -14,9 +14,7 @@ def test_admin_can_create_project(client, db_session):
         "tags": None,
     }
 
-    r = client.post(
-        "/admin/projects", json=payload
-    )
+    r = client.post("/admin/projects", json=payload)
     assert r.status_code in (200, 201), r.text
     assert r.json()["title"] == "Project"
 
@@ -34,9 +32,7 @@ def test_admin_cannot_create_project_with_existing_slug(client, db_session):
         "tags": None,
     }
 
-    r = client.post(
-        "/admin/projects", json=payload
-    )
+    r = client.post("/admin/projects", json=payload)
     assert r.status_code == 400, r.text
     assert r.json()["detail"] == "Slug already exists"
 
@@ -51,10 +47,7 @@ def test_admin_can_update_project(client, db_session):
         "description": "Desc",
     }
 
-    r = client.put(
-        f"/admin/projects/{project.id}",
-        json=payload
-    )
+    r = client.put(f"/admin/projects/{project.id}", json=payload)
     assert r.status_code in (200, 201), r.text
     assert r.json()["title"] == "Updated Project"
     assert r.json()["slug"] == "updated-project"
@@ -66,10 +59,7 @@ def test_admin_cannot_update_missing_project(client, db_session):
     authenticate_client(client, admin)
     payload = {"title": "Project", "slug": "project", "description": "Desc"}
 
-    r = client.put(
-        "/admin/projects/9999",
-        json=payload
-    )
+    r = client.put("/admin/projects/9999", json=payload)
     assert r.status_code == 404, r.text
     assert r.json()["detail"] == "Project not found"
 
@@ -81,10 +71,7 @@ def test_admin_cannot_change_slug_to_existing_slug(client, db_session):
     authenticate_client(client, admin)
     payload = {"title": "Good Project", "slug": "project", "description": "Desc"}
 
-    r = client.put(
-        f"/admin/projects/{project.id}",
-        json=payload
-    )
+    r = client.put(f"/admin/projects/{project.id}", json=payload)
     assert r.status_code == 400, r.text
     assert r.json()["detail"] == "Slug already exists"
 
@@ -94,9 +81,7 @@ def test_admin_can_delete_project(client, db_session):
     project = ProjectFactory.create()
     authenticate_client(client, admin)
 
-    r = client.delete(
-        f"/admin/projects/{project.id}"
-    )
+    r = client.delete(f"/admin/projects/{project.id}")
     assert r.status_code == 200, r.text
     assert r.json()["message"] == "Deleted"
 
@@ -105,8 +90,6 @@ def test_admin_cannot_delete_missing_project(client, db_session):
     admin = AdminFactory.create()
     authenticate_client(client, admin)
 
-    r = client.delete(
-        "/admin/projects/9999"
-    )
+    r = client.delete("/admin/projects/9999")
     assert r.status_code == 404, r.text
     assert r.json()["detail"] == "Project not found"

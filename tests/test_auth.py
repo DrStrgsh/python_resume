@@ -40,7 +40,7 @@ def test_logout(client, db_session):
 
     r = client.post("/auth/logout")
     assert r.status_code == 200, r.text
-    assert r.json()["ok"] == True
+    assert r.json()["ok"]
 
     set_cookie = r.headers.get("set-cookie")
     assert set_cookie is not None

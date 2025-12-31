@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta, timezone
-from jose import jwt
 from typing import Any
+
+from jose import jwt
 
 from app.core.config import get_settings
 from app.models.users import User
-
 
 settings = get_settings()
 

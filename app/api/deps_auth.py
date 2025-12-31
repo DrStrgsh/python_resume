@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status, Cookie
+from fastapi import Cookie, Depends, HTTPException, status
 from jose import ExpiredSignatureError, JWTError, jwt
 from sqlalchemy.orm import Session
 
@@ -8,8 +8,7 @@ from app.models.enums import UserRole
 from app.models.users import User
 
 INVALID_TOKEN = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Invalid token"
+    status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
 )
 ADMIN_ACCESS_REQUIRED = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
@@ -18,7 +17,9 @@ settings = get_settings()
 
 
 def get_access_token(
-        access_token_cookie: str | None = Cookie(default = None, alias = settings.ACCESS_TOKEN_COOKIE_NAME),
+    access_token_cookie: str | None = Cookie(
+        default=None, alias=settings.ACCESS_TOKEN_COOKIE_NAME
+    ),
 ) -> str:
     if access_token_cookie:
         return access_token_cookie

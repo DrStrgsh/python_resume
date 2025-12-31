@@ -23,9 +23,7 @@ def test_user_cannot_create_project(client, db_session):
         "tags": None,
     }
 
-    r = client.post(
-        "/admin/projects", json=payload
-    )
+    r = client.post("/admin/projects", json=payload)
     assert r.status_code == 403, r.text
 
 
