@@ -7,7 +7,7 @@ import Button from "./Button"
 import { useAuth } from "@/features/auth/useAuth"
 
 const Header = () => {
-  const { user, isLoading, logout, isLoggingOut } = useAuth()
+  const { user, logout, isLoggingOut } = useAuth()
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-space-bg/40 backdrop-blur">
@@ -34,19 +34,13 @@ const Header = () => {
           </Link>
         </div>
         <nav className="flex items-center gap-3">
-          {isLoading ? (
-            <span className="text-sm text-white/50">Loading...</span>
-          ) : user ? (
+          {user && (
             <>
               <span className="text-sm text-white/70">{user.username}</span>
               <Button onClick={() => logout()} disabled={isLoggingOut}>
                 Logout
               </Button>
             </>
-          ) : (
-            <Button asChild variant="ghost">
-              <Link href="/login">Login</Link>
-            </Button>
           )}
         </nav>
       </div>
