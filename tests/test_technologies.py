@@ -47,7 +47,7 @@ def test_admin_can_update_technologies(client, db_session):
     authenticate_client(client, admin)
     payload = {"name": "Updated Technology", "start_year": 2022}
 
-    r = client.put(f"/api/technologies/{technology.id}", json=payload)
+    r = client.patch(f"/api/technologies/{technology.id}", json=payload)
     assert r.status_code == 200, r.text
     assert r.json()["name"] == "Updated Technology"
 
@@ -57,7 +57,7 @@ def test_admin_cannot_update_missing_technologies(client, db_session):
     authenticate_client(client, admin)
     payload = {"name": "Updated Technology", "start_year": 2022}
 
-    r = client.put("/api/technologies/9999", json=payload)
+    r = client.patch("/api/technologies/9999", json=payload)
     assert r.status_code == 404, r.text
     assert r.json()["detail"] == "Technology not found"
 
@@ -69,7 +69,7 @@ def test_admin_cannot_update_technologies_with_existing_name(client, db_session)
     authenticate_client(client, admin)
     payload = {"name": "Technology", "start_year": 2022}
 
-    r = client.put(f"/api/technologies/{technology.id}", json=payload)
+    r = client.patch(f"/api/technologies/{technology.id}", json=payload)
     assert r.status_code == 400, r.text
     assert r.json()["detail"] == "Technology already exists"
 

@@ -87,7 +87,7 @@ def test_admin_can_update_project(client, db_session):
         "description": "Desc",
     }
 
-    r = client.put(f"/api/projects/{project.id}", json=payload)
+    r = client.patch(f"/api/projects/{project.id}", json=payload)
     assert r.status_code in (200, 201), r.text
     assert r.json()["title"] == "Updated Project"
     assert r.json()["slug"] == "updated-project"
@@ -99,7 +99,7 @@ def test_admin_cannot_update_missing_project(client, db_session):
     authenticate_client(client, admin)
     payload = {"title": "Project", "slug": "project", "description": "Desc"}
 
-    r = client.put("/api/projects/9999", json=payload)
+    r = client.patch("/api/projects/9999", json=payload)
     assert r.status_code == 404, r.text
     assert r.json()["detail"] == "Project not found"
 
@@ -111,7 +111,7 @@ def test_admin_cannot_change_slug_to_existing_slug(client, db_session):
     authenticate_client(client, admin)
     payload = {"title": "Good Project", "slug": "project", "description": "Desc"}
 
-    r = client.put(f"/api/projects/{project.id}", json=payload)
+    r = client.patch(f"/api/projects/{project.id}", json=payload)
     assert r.status_code == 400, r.text
     assert r.json()["detail"] == "Slug already exists"
 
