@@ -5,7 +5,9 @@ from tests.jwt_helpers import authenticate_client
 def test_login(client, db_session):
     UserFactory.create(username="user")
 
-    r = client.post("/api/auth/login", data={"username": "user", "password": "password"})
+    r = client.post(
+        "/api/auth/login", data={"username": "user", "password": "password"}
+    )
     assert r.status_code == 200, r.text
     data = r.json()
     assert data["username"] == "user"
@@ -26,7 +28,9 @@ def test_me(client, db_session):
 def test_login_wrong_password_or_username(client, db_session):
     UserFactory.create(username="user_two")
 
-    r = client.post("/api/auth/login", data={"username": "user_two", "password": "wrong"})
+    r = client.post(
+        "/api/auth/login", data={"username": "user_two", "password": "wrong"}
+    )
     assert r.status_code == 401, r.text
 
     r2 = client.post(

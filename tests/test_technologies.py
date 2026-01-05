@@ -14,10 +14,7 @@ def test_users_can_get_technologies(client, db_session):
 def test_users_cannot_create_technologies(client, db_session):
     user = UserFactory.create()
     authenticate_client(client, user)
-    payload = {
-        "name": "Technology",
-        "start_year": 2022
-    }
+    payload = {"name": "Technology", "start_year": 2022}
 
     r = client.post("/api/technologies", json=payload)
     assert r.status_code == 403, r.text
@@ -26,10 +23,7 @@ def test_users_cannot_create_technologies(client, db_session):
 def test_admin_can_create_technologies(client, db_session):
     admin = AdminFactory.create()
     authenticate_client(client, admin)
-    payload = {
-        "name": "Technology",
-        "start_year": 2022
-    }
+    payload = {"name": "Technology", "start_year": 2022}
 
     r = client.post("/api/technologies", json=payload)
     assert r.status_code in (200, 201), r.text
@@ -40,10 +34,7 @@ def test_admin_cannot_create_existing_technologies(client, db_session):
     admin = AdminFactory.create()
     TechnologyFactory(name="Technology")
     authenticate_client(client, admin)
-    payload = {
-        "name": "Technology",
-        "start_year": 2022
-    }
+    payload = {"name": "Technology", "start_year": 2022}
 
     r = client.post("/api/technologies", json=payload)
     assert r.status_code == 400, r.text
@@ -54,10 +45,7 @@ def test_admin_can_update_technologies(client, db_session):
     admin = AdminFactory.create()
     technology = TechnologyFactory.create()
     authenticate_client(client, admin)
-    payload = {
-        "name": "Updated Technology",
-        "start_year": 2022
-    }
+    payload = {"name": "Updated Technology", "start_year": 2022}
 
     r = client.put(f"/api/technologies/{technology.id}", json=payload)
     assert r.status_code == 200, r.text
@@ -67,10 +55,7 @@ def test_admin_can_update_technologies(client, db_session):
 def test_admin_cannot_update_missing_technologies(client, db_session):
     admin = AdminFactory.create()
     authenticate_client(client, admin)
-    payload = {
-        "name": "Updated Technology",
-        "start_year": 2022
-    }
+    payload = {"name": "Updated Technology", "start_year": 2022}
 
     r = client.put("/api/technologies/9999", json=payload)
     assert r.status_code == 404, r.text
@@ -82,10 +67,7 @@ def test_admin_cannot_update_technologies_with_existing_name(client, db_session)
     TechnologyFactory(name="Technology")
     technology = TechnologyFactory.create()
     authenticate_client(client, admin)
-    payload = {
-        "name": "Technology",
-        "start_year": 2022
-    }
+    payload = {"name": "Technology", "start_year": 2022}
 
     r = client.put(f"/api/technologies/{technology.id}", json=payload)
     assert r.status_code == 400, r.text
