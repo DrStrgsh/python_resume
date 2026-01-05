@@ -31,7 +31,7 @@ services:
     expose:
       - "3000"
     environment:
-      NEXT_PUBLIC_API_BASE_URL: https://yourdomain.me/api
+      NEXT_PUBLIC_API_BASE_URL: https://strgsh.com/api
       FASTAPI_BASE_URL: http://backend:8000/api
     depends_on:
       - backend
