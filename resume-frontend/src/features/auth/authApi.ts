@@ -1,15 +1,5 @@
-import { api } from "@/lib/api"
-
-export type User = {
-  id: number
-  username: string
-  role: string
-}
-
-export type LoginRequest = {
-  username: string
-  password: string
-}
+import api from "@/lib/api"
+import type { LoginRequest, User } from "./auth.types"
 
 export async function login(payload: LoginRequest): Promise<User> {
   const form = new URLSearchParams()
@@ -26,9 +16,9 @@ export async function login(payload: LoginRequest): Promise<User> {
     method: "POST",
     credentials: "include",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+      "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: form.toString()
+    body: form.toString(),
   })
 
   const text = await response.text()
@@ -53,16 +43,13 @@ export async function login(payload: LoginRequest): Promise<User> {
 }
 
 export function me(): Promise<User> {
-  return api<User>({
-    method: "GET",
-    path: "/auth/me",
-    cache: "no-store"
-  })
+  return api.get<User>("/auth/me")
 }
 
 export function logout(): Promise<{ ok: true }> {
-  return api<{ ok: true }>({
-    method: "POST",
-    path: "/auth/logout"
-  })
+  return api.post<{ ok: true }>("/auth/logout")
+}
+
+export function isAdmin(user: User | null | undefined): boolean {
+  return user?.role === "admin"
 }

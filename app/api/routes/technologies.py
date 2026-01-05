@@ -20,7 +20,7 @@ TECHNOLOGY_EXISTS = HTTPException(
 
 @router.get("", response_model=list[TechnologyOut])
 def list_technologies(db: Session = Depends(get_db)):
-    return db.query(Technology).order_by(Technology.start_year.desc()).all()
+    return db.query(Technology).order_by(Technology.start_year.asc()).all()
 
 
 @router.post("", response_model=TechnologyOut)

@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest } from "next/server"
 
 type RouteContext = {
   params: Promise<{ path: string[] }>
@@ -19,12 +19,6 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
 }
 
 export async function PUT(req: NextRequest, ctx: RouteContext) {
-  const { path } = await ctx.params
-
-  return proxy(req, path)
-}
-
-export async function PATCH(req: NextRequest, ctx: RouteContext) {
   const { path } = await ctx.params
 
   return proxy(req, path)
@@ -54,7 +48,7 @@ async function proxy(req: NextRequest, pathParts: string[]) {
   const requestInit: RequestInit = {
     method: req.method,
     headers: requestHeadersObj,
-    redirect: "manual"
+    redirect: "manual",
   }
 
   if (req.method !== "GET" && req.method !== "HEAD") {
