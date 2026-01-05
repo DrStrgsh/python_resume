@@ -8,7 +8,7 @@ def test_expired_token_returns_401(client, db_session):
     token = make_token(sub=user.id, role=UserRole.user, exp_delta_seconds=-60)
     authenticate_client(client, user, token)
 
-    r = client.get("/auth/me")
+    r = client.get("/api/auth/me")
     assert r.status_code == 401, r.text
     assert r.json()["detail"] == "Invalid token"
 
@@ -20,7 +20,7 @@ def test_invalid_signature_returns_401(client, db_session):
     )
     authenticate_client(client, user, token)
 
-    r = client.get("/auth/me")
+    r = client.get("/api/auth/me")
     assert r.status_code == 401, r.text
     assert r.json()["detail"] == "Invalid token"
 
@@ -30,6 +30,6 @@ def test_token_for_missing_user_returns_401(client, db_session):
     token = make_token(sub=99999, role=UserRole.user, exp_delta_seconds=3600)
     authenticate_client(client, user, token)
 
-    r = client.get("/auth/me")
+    r = client.get("/api/auth/me")
     assert r.status_code == 401, r.text
     assert r.json()["detail"] == "Invalid token"

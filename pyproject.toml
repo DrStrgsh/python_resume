@@ -5,7 +5,7 @@ target-version = "py310"
 exclude = [
     ".venv",
     "venv",
-    "alembic/versions",
+    "alembic",
 ]
 
 [tool.ruff.lint]

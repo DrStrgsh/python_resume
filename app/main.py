@@ -1,9 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes.admin_projects import router as admin_projects_router
-from app.api.routes.auth import router as auth_router
-from app.api.routes.projects import router as projects_router
+from app.api.routes.router import api_router
 from app.core.config import get_settings
 
 app = FastAPI(title="Resume API")
@@ -24,6 +22,4 @@ app.add_middleware(
 )
 
 
-app.include_router(auth_router)
-app.include_router(projects_router)
-app.include_router(admin_projects_router)
+app.include_router(api_router, prefix="/api")
