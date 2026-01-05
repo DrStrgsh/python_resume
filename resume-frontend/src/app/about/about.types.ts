@@ -22,11 +22,6 @@ export type TechModalProps = {
   onSuccess?: () => void
 }
 
-export type UpdateTechProps = {
-  id: number
-  input: TechInput
-}
-
 export type TechStackProps = {
   technologies: Tech[]
   openEdit: (tech: Tech) => void

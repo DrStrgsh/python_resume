@@ -1,34 +1,16 @@
 "use client"
 
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "react-toastify"
-
 import type { TechStackProps } from "./about.types"
 import { useAuth } from "@/features/auth/useAuth"
-import api, { ApiError, extractErrorMessage } from "@/lib/api"
 import Button from "@/components/Button"
+import { useTechMutations } from "@/features/technologies/useTechnologies"
 
 export default function TechStack({ technologies, openEdit }: TechStackProps) {
   const { isAdmin } = useAuth()
-  const queryClient = useQueryClient()
+  const { deleteTech } = useTechMutations()
 
-  async function deleteTech(id: number): Promise<{ message: string }> {
-    return api.delete(`/technologies/${id}`, { cache: "no-store" })
-  }
-
-  const deleteMutation = useMutation<{ message: string }, ApiError, { id: number }>({
-    mutationFn: ({ id }) => deleteTech(id),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["technologies"] })
-      toast.success("Tech deleted successfully")
-    },
-    onError: (err) => {
-      toast.error(extractErrorMessage(err))
-    },
-  })
-
-  async function handleDelete(id: number) {
-    await deleteMutation.mutateAsync({ id })
+  function handleDelete(id: number) {
+    deleteTech({ id: id })
   }
 
   function calculateExperience(startYear: number): string {

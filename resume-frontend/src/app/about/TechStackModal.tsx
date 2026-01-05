@@ -2,13 +2,11 @@
 
 import React from "react"
 import { useState } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "react-toastify"
 
-import type { Tech, TechInput, TechModalProps, UpdateTechProps } from "./about.types"
-import api, { ApiError, extractErrorMessage } from "@/lib/api"
+import type { TechInput, TechModalProps } from "./about.types"
 import ModalShell from "@/components/ModalShell"
 import Button from "@/components/Button"
+import { useTechMutations } from "@/features/technologies/useTechnologies"
 
 export default function TechStackModal({ isOpen, mode, initialTech = null, onClose }: TechModalProps) {
   function emptyForm(): TechInput {
@@ -17,8 +15,8 @@ export default function TechStackModal({ isOpen, mode, initialTech = null, onClo
       start_year: new Date().getFullYear(),
     }
   }
-
-  const queryClient = useQueryClient()
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const { createTech, updateTech, isCreating, isUpdating } = useTechMutations({ onClose, setErrorMessage })
   const [form, setForm] = useState<TechInput>(() => {
     if (mode === "edit" && initialTech) {
       return {
@@ -28,54 +26,19 @@ export default function TechStackModal({ isOpen, mode, initialTech = null, onClo
     }
     return emptyForm()
   })
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const title = () => {
+
+  function title() {
     return mode === "create" ? "Create Tech" : "Edit Tech"
   }
 
-  async function createTech(input: TechInput): Promise<Tech> {
-    return api.post<Tech>("/technologies", input, { cache: "no-store" })
-  }
-
-  async function updateTech(id: number, input: TechInput): Promise<Tech> {
-    return api.put<Tech>(`/technologies/${id}`, input, { cache: "no-store" })
-  }
-
-  const createMutation = useMutation<Tech, ApiError, TechInput>({
-    mutationFn: createTech,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["technologies"] })
-      toast.success("Tech created successfully")
-      onClose()
-    },
-    onError: (err) => {
-      toast.error(extractErrorMessage(err))
-      setErrorMessage(extractErrorMessage(err))
-    },
-  })
-
-  const updateMutation = useMutation<Tech, ApiError, UpdateTechProps>({
-    mutationFn: ({ id, input }) => updateTech(id, input),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["technologies"] })
-      toast.success("Tech updated successfully")
-      onClose()
-    },
-    onError: (err) => {
-      toast.error(extractErrorMessage(err))
-      setErrorMessage(extractErrorMessage(err))
-    },
-  })
-
-  const isSaving = createMutation.isPending || updateMutation.isPending
+  const isSaving = isCreating || isUpdating
 
   function setField<K extends keyof TechInput>(key: K, value: TechInput[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setErrorMessage(null)
 
     if (!form.name.trim() || !form.start_year) {
       setErrorMessage("Name and start year are required")
@@ -88,7 +51,7 @@ export default function TechStackModal({ isOpen, mode, initialTech = null, onClo
     }
 
     if (mode === "create") {
-      await createMutation.mutateAsync(payload)
+      createTech(payload)
       return
     }
 
@@ -97,7 +60,7 @@ export default function TechStackModal({ isOpen, mode, initialTech = null, onClo
       return
     }
 
-    await updateMutation.mutateAsync({ id: initialTech.id, input: payload })
+    updateTech({ id: initialTech.id, input: payload })
   }
 
   return (

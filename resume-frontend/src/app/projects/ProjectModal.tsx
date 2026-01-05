@@ -2,13 +2,11 @@
 
 import React from "react"
 import { useState } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "react-toastify"
 
-import api, { ApiError, extractErrorMessage } from "@/lib/api"
 import ModalShell from "@/components/ModalShell"
-import type { Project, ProjectInput, ProjectModalProps, UpdateProjectProps } from "./project.types"
+import type { ProjectInput, ProjectModalProps } from "./project.types"
 import Button from "@/components/Button"
+import { useProjectMutations } from "@/features/projects/useProjects"
 
 export default function ProjectModal({ isOpen, mode, initialProject = null, onClose }: ProjectModalProps) {
   function emptyFrom(): ProjectInput {
@@ -22,7 +20,6 @@ export default function ProjectModal({ isOpen, mode, initialProject = null, onCl
     }
   }
 
-  const queryClient = useQueryClient()
   const [form, setForm] = useState<ProjectInput>(() => {
     if (mode === "edit" && initialProject) {
       return {
@@ -37,7 +34,9 @@ export default function ProjectModal({ isOpen, mode, initialProject = null, onCl
     return emptyFrom()
   })
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const title = () => {
+  const { createProject, updateProject, isCreating, isUpdating } = useProjectMutations({ onClose, setErrorMessage })
+
+  function title() {
     return mode === "create" ? "Create Project" : "Edit Project"
   }
 
@@ -47,53 +46,17 @@ export default function ProjectModal({ isOpen, mode, initialProject = null, onCl
     return v === "" ? null : v
   }
 
-  async function createProject(input: ProjectInput): Promise<Project> {
-    return api.post<Project>("/projects", input, { cache: "no-store" })
-  }
-
-  async function updateProject(id: number, input: ProjectInput): Promise<Project> {
-    return api.put<Project>(`/projects/${id}`, input, { cache: "no-store" })
-  }
-
-  const createMutation = useMutation<Project, ApiError, ProjectInput>({
-    mutationFn: createProject,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["projects"] })
-      toast.success("Project created successfully")
-      onClose()
-    },
-    onError: (err) => {
-      toast.error(extractErrorMessage(err))
-      setErrorMessage(extractErrorMessage(err))
-    },
-  })
-
-  const updateMutation = useMutation<Project, ApiError, UpdateProjectProps>({
-    mutationFn: ({ id, input }) => updateProject(id, input),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["projects"] })
-      toast.success("Project updated successfully")
-      onClose()
-    },
-    onError: (err) => {
-      toast.error(extractErrorMessage(err))
-      setErrorMessage(extractErrorMessage(err))
-    },
-  })
-
-  const isSaving = createMutation.isPending || updateMutation.isPending
+  const isSaving = isCreating || isUpdating
 
   function setField<K extends keyof ProjectInput>(key: K, value: ProjectInput[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setErrorMessage(null)
 
     if (!form.title.trim() || !form.slug.trim() || !form.description.trim()) {
-      setErrorMessage("Title, slug and description are required")
-      return
+      return setErrorMessage("Title, slug and description are required")
     }
 
     const payload: ProjectInput = {
@@ -106,7 +69,7 @@ export default function ProjectModal({ isOpen, mode, initialProject = null, onCl
     }
 
     if (mode === "create") {
-      await createMutation.mutateAsync(payload)
+      createProject(payload)
       return
     }
 
@@ -115,7 +78,7 @@ export default function ProjectModal({ isOpen, mode, initialProject = null, onCl
       return
     }
 
-    await updateMutation.mutateAsync({ id: initialProject.id, input: payload })
+    updateProject({ id: initialProject.id, input: payload })
   }
 
   return (

@@ -19,13 +19,12 @@ export type ProjectInput = {
   tags: string | null
 }
 
-export type ProjectModalMode = "create" | "edit"
+export type UpdateProjectProps = {
+  id: number
+  input: ProjectInput
+}
 
-export type ProjectModalProps = {
-  key: number | string
-  isOpen: boolean
-  mode: ProjectModalMode
-  initialProject?: Project | null
-  onClose: () => void
-  onSuccess?: () => void
+export interface UseProjectMutationsProps {
+  onClose?: () => void
+  setErrorMessage?: (message: string | null) => void
 }

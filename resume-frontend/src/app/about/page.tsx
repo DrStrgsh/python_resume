@@ -2,14 +2,13 @@
 
 import Image from "next/image"
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
 
-import api, { ApiError } from "@/lib/api"
 import type { Tech, TechModalMode } from "./about.types"
 import TechStack from "@/app/about/TechStack"
 import { useAuth } from "@/features/auth/useAuth"
 import TechStackModal from "@/app/about/TechStackModal"
 import Button from "@/components/Button"
+import { useTech } from "@/features/technologies/useTechnologies"
 
 export default function AboutPage() {
   const { isAdmin } = useAuth()
@@ -19,16 +18,7 @@ export default function AboutPage() {
   const birthDate = "05.04.1998"
   const age = calculateAge(birthDate)
   const experienceYears = new Date().getFullYear() - 2018
-  const {
-    data: technologies,
-    isLoading,
-    isError,
-    error,
-  } = useQuery<Tech[], ApiError>({ queryKey: ["technologies"], queryFn: listTech })
-
-  async function listTech(): Promise<Tech[]> {
-    return api.get<Tech[]>("/technologies")
-  }
+  const { data: technologies, isLoading, isError, error } = useTech()
 
   function calculateAge(birthDateString: string): number {
     const [day, month, year] = birthDateString.split(".").map(Number)

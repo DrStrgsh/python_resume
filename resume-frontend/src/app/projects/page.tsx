@@ -1,32 +1,21 @@
 "use client"
 
 import { useState } from "react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "react-toastify"
 
-import api, { ApiError, extractErrorMessage } from "@/lib/api"
 import Button from "@/components/Button"
 import type { Project, ProjectModalMode } from "./project.types"
 import ProjectModal from "./ProjectModal"
 import { useAuth } from "@/features/auth/useAuth"
+import { useProjectMutations, useProjects } from "@/features/projects/useProjects"
 
 export default function ProjectsPage() {
-  async function listProjects(): Promise<Project[]> {
-    return api.get<Project[]>("/projects")
-  }
-
-  const queryClient = useQueryClient()
   const { isAdmin } = useAuth()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<ProjectModalMode>("create")
   const [editingProject, setEditingProject] = useState<Project | null>(null)
+  const { deleteProject } = useProjectMutations()
 
-  const {
-    data: projects,
-    isLoading,
-    isError,
-    error,
-  } = useQuery<Project[], ApiError>({ queryKey: ["projects"], queryFn: listProjects })
+  const { data: projects, isLoading, isError, error } = useProjects()
 
   function openCreate() {
     setModalMode("create")
@@ -45,23 +34,8 @@ export default function ProjectsPage() {
     setEditingProject(null)
   }
 
-  async function deleteProject(id: number): Promise<{ message: string }> {
-    return api.delete(`/projects/${id}`, { cache: "no-store" })
-  }
-
-  const deleteMutation = useMutation<{ message: string }, ApiError, { id: number }>({
-    mutationFn: ({ id }) => deleteProject(id),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["projects"] })
-      toast.success("Project deleted successfully")
-    },
-    onError: (err) => {
-      toast.error(extractErrorMessage(err))
-    },
-  })
-
-  async function handleDelete(id: number) {
-    await deleteMutation.mutateAsync({ id })
+  function handleDelete(id: number) {
+    deleteProject({ id })
   }
 
   return (
