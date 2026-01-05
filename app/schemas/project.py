@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -28,9 +27,9 @@ class ProjectOut(ProjectBase):
 
 
 class ProjectUpdate(ProjectBase):
-    title: Optional[str] = None
-    slug: Optional[str] = None
-    description: Optional[str] = None
-    url: Optional[str] = None
-    repo_url: Optional[str] = None
-    tags: Optional[str] = None
+    title: str | None = None
+    slug: str | None = None
+    description: str | None = None
+    url: str | None = None
+    repo_url: str | None = None
+    tags: str | None = None

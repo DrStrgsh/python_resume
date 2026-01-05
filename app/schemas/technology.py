@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -22,5 +21,5 @@ class TechnologyOut(TechnologyBase):
 
 
 class TechnologyUpdate(TechnologyBase):
-    name: Optional[str] = None
-    start_year: Optional[int] = None
+    name: str | None = None
+    start_year: int | None = None
