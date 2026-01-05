@@ -24,6 +24,12 @@ export async function PUT(req: NextRequest, ctx: RouteContext) {
   return proxy(req, path)
 }
 
+export async function PATCH(req: NextRequest, ctx: RouteContext) {
+  const { path } = await ctx.params
+
+  return proxy(req, path)
+}
+
 export async function DELETE(req: NextRequest, ctx: RouteContext) {
   const { path } = await ctx.params
 

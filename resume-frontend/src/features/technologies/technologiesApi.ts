@@ -10,7 +10,7 @@ export async function createTech(input: TechInput): Promise<Tech> {
 }
 
 export async function updateTech(id: number, input: TechInput): Promise<Tech> {
-  return api.put<Tech>(`/technologies/${id}`, input, { cache: "no-store" })
+  return api.patch<Tech>(`/technologies/${id}`, input, { cache: "no-store" })
 }
 
 export async function deleteTech(id: number): Promise<void> {

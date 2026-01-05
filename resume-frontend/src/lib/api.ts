@@ -89,6 +89,9 @@ const api = {
   put: <T>(path: string, body?: unknown, opts?: Omit<RequestOptions, "path" | "method" | "body">) =>
     request<T>({ method: "PUT", path, body, ...opts }),
 
+  patch: <T>(path: string, body?: unknown, opts?: Omit<RequestOptions, "path" | "method" | "body">) =>
+    request<T>({ method: "PATCH", path, body, ...opts }),
+
   delete: <T>(path: string, opts?: Omit<RequestOptions, "path" | "method">) =>
     request<T>({ method: "DELETE", path, ...opts }),
 }

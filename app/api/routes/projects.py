@@ -5,7 +5,7 @@ from app.api.deps import get_db
 from app.api.deps_auth import require_admin
 from app.models.projects import Project
 from app.models.users import User
-from app.schemas.project import ProjectCreate, ProjectOut
+from app.schemas.project import ProjectCreate, ProjectOut, ProjectUpdate
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
@@ -50,10 +50,10 @@ def create_project(
     return project
 
 
-@router.put("/{project_id}", response_model=ProjectOut)
+@router.patch("/{project_id}", response_model=ProjectOut)
 def update_project(
     project_id: int,
-    payload: ProjectCreate,
+    payload: ProjectUpdate,
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -61,15 +61,17 @@ def update_project(
     if not project:
         raise PROJECT_NOT_FOUND
 
-    other = (
-        db.query(Project)
-        .filter(Project.slug == payload.slug, Project.id != project_id)
-        .first()
-    )
-    if other:
-        raise SLUG_EXISTS
+    if payload.slug is not None:
+        other = (
+            db.query(Project)
+            .filter(Project.slug == payload.slug, Project.id != project_id)
+            .first()
+        )
+        if other:
+            raise SLUG_EXISTS
 
-    for k, v in payload.model_dump().items():
+    update_data = payload.model_dump(exclude_unset=True)
+    for k, v in update_data.items():
         setattr(project, k, v)
 
     db.commit()

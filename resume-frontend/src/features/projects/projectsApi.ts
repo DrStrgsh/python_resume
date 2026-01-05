@@ -10,7 +10,7 @@ export async function createProject(input: ProjectInput): Promise<Project> {
 }
 
 export async function updateProject(id: number, input: ProjectInput): Promise<Project> {
-  return api.put<Project>(`/projects/${id}`, input, { cache: "no-store" })
+  return api.patch<Project>(`/projects/${id}`, input, { cache: "no-store" })
 }
 
 export async function deleteProject(id: number): Promise<void> {

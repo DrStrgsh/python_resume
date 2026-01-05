@@ -5,7 +5,7 @@ from app.api.deps import get_db
 from app.api.deps_auth import require_admin
 from app.models.technologies import Technology
 from app.models.users import User
-from app.schemas.technology import TechnologyCreate, TechnologyOut
+from app.schemas.technology import TechnologyCreate, TechnologyOut, TechnologyUpdate
 
 router = APIRouter(prefix="/technologies", tags=["technologies"])
 
@@ -40,10 +40,10 @@ def create_technology(
     return technology
 
 
-@router.put("/{technology_id}", response_model=TechnologyOut)
+@router.patch("/{technology_id}", response_model=TechnologyOut)
 def update_technology(
     technology_id: int,
-    payload: TechnologyCreate,
+    payload: TechnologyUpdate,
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
@@ -51,15 +51,17 @@ def update_technology(
     if not technology:
         raise TECHNOLOGY_NOT_FOUND
 
-    other = (
-        db.query(Technology)
-        .filter(Technology.name == payload.name, Technology.id != technology_id)
-        .first()
-    )
-    if other:
-        raise TECHNOLOGY_EXISTS
+    if payload.name is not None:
+        other = (
+            db.query(Technology)
+            .filter(Technology.name == payload.name, Technology.id != technology_id)
+            .first()
+        )
+        if other:
+            raise TECHNOLOGY_EXISTS
 
-    for k, v in payload.model_dump().items():
+    update_data = payload.model_dump(exclude_unset=True)
+    for k, v in update_data.items():
         setattr(technology, k, v)
 
     db.commit()

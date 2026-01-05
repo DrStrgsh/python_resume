@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -24,3 +25,12 @@ class ProjectOut(ProjectBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ProjectUpdate(ProjectBase):
+    title: Optional[str] = None
+    slug: Optional[str] = None
+    description: Optional[str] = None
+    url: Optional[str] = None
+    repo_url: Optional[str] = None
+    tags: Optional[str] = None
