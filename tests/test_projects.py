@@ -1,4 +1,4 @@
-from tests.factories import ProjectFactory, UserFactory, AdminFactory
+from tests.factories import AdminFactory, ProjectFactory, UserFactory
 from tests.jwt_helpers import authenticate_client
 
 
